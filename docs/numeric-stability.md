@@ -28,3 +28,9 @@ Healing.act原先在Math.min限制到HT之前计算HP+本次治疗，已经可�
 从模拟器存档确认两枚戒指等级各100000、存在新定点时间字段；其他槽位3个文件与安装前备份逐字节相同。源码测试覆盖真实Actor调度器（最小环境桩）、新类型存档、高数值及真实Wand.gainCharge方法；Boss和血量回归继续通过。
 
 新版APK：release/TooCruel-1.0.2-numeric-stability-debug.apk，v1/v2签名验证通过。科学计数类型已用于戒指增长计算，但int血量和伤害字段尚未端到端迁移，不能把本次称为无限生命/伤害已完成。
+
+## 当前本地试玩版
+
+用户要求试玩前去掉测试代码，并禁止push。已移除BossTest/WndBossTest、启动Intent测试参数、不死及其配置、自动验证/直达Boss/测试物资、原版调试开局赠品。Android本地版本后缀改为-local，不激活按INDEV标识启用的原版调试功能；安装包标识仍沿用.indev，以便原位升级并保留存档。
+
+当前试玩包为release/TooCruel-1.0.2-play-local.apk，使用本地调试签名。历史测试存档中的物资和装备不会自动删改，正常试玩应新开局。保留不进入APK的源码回归脚本。只做本地Git提交；试玩通过后仍需用户明确授权才可push。

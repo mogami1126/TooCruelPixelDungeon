@@ -765,7 +765,6 @@ public class GameScene extends PixelScene {
 			g.destroy();
 		}
 		toDestroy.clear();
-        com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.update();
 	}
 
 	private boolean tagAttack    = false;

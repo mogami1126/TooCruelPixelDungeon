@@ -54,12 +54,7 @@ public class WndGame extends Window {
 		
 		super();
 
-        if (com.watabou.utils.DeviceCompat.isDebug()) {
-            addButton(new RedButton("Boss 测试 / 不死") {
-                @Override protected void onClick() { hide(); GameScene.show(new WndBossTest()); }
-            });
-        }
-        //settings
+		//settings
 		RedButton curBtn;
 		addButton( curBtn = new RedButton( Messages.get(this, "settings") ) {
 			@Override

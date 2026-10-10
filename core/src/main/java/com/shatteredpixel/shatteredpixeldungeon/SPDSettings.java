@@ -33,11 +33,6 @@ import com.watabou.utils.Point;
 import java.util.Locale;
 
 public class SPDSettings extends GameSettings {
-    public static int bossTestSlot() { return getInt("boss_test_slot", 0); }
-    public static void bossTestSlot(int value) { put("boss_test_slot", value); }
-    public static boolean bossTestGod() { return getBoolean("boss_test_god", false); }
-    public static void bossTestGod(boolean value) { put("boss_test_god", value); }
-
 
     //Version info
 

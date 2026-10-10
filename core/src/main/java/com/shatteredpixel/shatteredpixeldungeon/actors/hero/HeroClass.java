@@ -149,54 +149,6 @@ public enum HeroClass {
 			new AquaBlast().quantity(2).collect();
 		}
 
-		if (DeviceCompat.isDebug()) {
-			new ScrollOfIdentify().identify();
-
-			new ScrollOfMagicMapping().quantity(64).identify().collect();
-			new ScrollOfRage().quantity(64).identify().collect();
-			new ScrollOfUpgrade().quantity(100).identify().collect();
-			new ScrollOfMirrorImage().quantity(100).identify().collect();
-//			new ScrollOfIdentify().quantity(1).identify().collect();
-//			new ScrollOfRemoveCurse().quantity(1).identify().collect();
-//			new ScrollOfMysticalEnergy().quantity(1).identify().collect();
-//			new ScrollOfDivination().quantity(1).identify().collect();
-//			new ScrollOfForesight().quantity(1).identify().collect();
-//			new StoneOfAugmentation().quantity(1).identify().collect();
-//			new StoneOfIntuition().quantity(1).identify().collect();
-			new ScrollOfRecharging().quantity(100).identify().collect();
-//			new Stylus().quantity(1).identify().collect();
-			new PotionOfMindVision().quantity(64).identify().collect();
-			new PotionOfInvisibility().quantity(64).identify().collect();
-			new ReclaimTrap().setStoredTrap(GuardianTrap.class).collect();
-//			new ReclaimTrap().setStoredTrap(DistortionTrap.class).collect();
-//			Generator.randomWeapon(0).identify().collect();
-//			Generator.randomWeapon(1).identify().collect();
-//			Generator.randomWeapon(2).identify().collect();
-//			Generator.randomWeapon(3).identify().collect();
-//			Generator.randomWeapon(4).identify().collect();
-			new ForceCube().upgrade(5000).identify().collect();
-			new WandOfDisintegration().upgrade(5000000).identify().collect();
-			new Shortsword().enchant(new Elastic()).upgrade(0).identify().collect();
-//			new Blindweed.Seed().collect();
-//			hero.STR = 22;
-
-//			while(hero.lvl<30){
-//				hero.earnExp(hero.maxExp(), PotionOfExperience.class);
-//			}
-//			hero.earnExp(Hero.maxExp(30),hero.getClass());
-//			new PlateArmor().upgrade(100).collect();
-//			new Longsword().upgrade(10).identify().collect();
-			new PotionOfHealing().quantity(100).collect();
-
-			Dungeon.gold=1000000;
-
-//			Buff.affect(hero, MindVision.class,1000000);
-//			Buff.affect(hero, Invisibility.class,1000000);
-
-			new Amulet().upgrade(13).collect();
-//			new ScrollOfUpgrade().quantity(10).collect();
-		}
-
 		for (int s = 0; s < QuickSlot.SIZE; s++){
 			Item item = Dungeon.quickslot.getItem(s);
 			if (item == null){
