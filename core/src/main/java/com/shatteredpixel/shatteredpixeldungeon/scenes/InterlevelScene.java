@@ -70,7 +70,7 @@ public class InterlevelScene extends PixelScene {
 	private static float fadeTime;
 	
 	public enum Mode {
-		DESCEND, ASCEND, CONTINUE, RESURRECT, RETURN, FALL, RESET, NONE
+		DESCEND, ASCEND, CONTINUE, RESURRECT, RETURN, FALL, RESET, NONE, BOSS_TEST
 	}
 	public static Mode mode;
 	
@@ -109,6 +109,10 @@ public class InterlevelScene extends PixelScene {
 		final float scrollSpeed;
 		fadeTime = NORM_FADE;
 		switch (mode){
+            case BOSS_TEST:
+                loadingDepth = com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.requestedDepth;
+                scrollSpeed = 5;
+                break;
 			default:
 				loadingDepth = Dungeon.depth;
 				scrollSpeed = 0;
@@ -207,7 +211,7 @@ public class InterlevelScene extends PixelScene {
 		im.scale.y = Camera.main.width;
 		add(im);
 
-		String text = Messages.get(Mode.class, mode.name());
+		String text = mode == Mode.BOSS_TEST ? "Boss 测试" : Messages.get(Mode.class, mode.name());
 		
 		message = PixelScene.renderTextBlock( text, 9 );
 		message.setPos(
@@ -257,8 +261,11 @@ public class InterlevelScene extends PixelScene {
 						Actor.fixTime();
 
 						switch (mode) {
-							case DESCEND:
-								descend();
+							case BOSS_TEST:
+                                com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.generate();
+                                break;
+                            case DESCEND:
+                                descend();
 								break;
 							case ASCEND:
 								ascend();

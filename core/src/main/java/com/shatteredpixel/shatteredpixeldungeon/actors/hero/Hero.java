@@ -201,6 +201,7 @@ public class Hero extends Char {
 	public float awareness;
 
 	public int lvl = 1;
+    public boolean bossTestRun;
 	public int exp = 0;
 
 	public int HTBoost = 0;
@@ -279,6 +280,7 @@ public class Hero extends Char {
 		Talent.storeTalentsInBundle( bundle, this );
 
 		bundle.put(ATTACK, attackSkill);
+        bundle.put("boss_test_run", bossTestRun);
 		bundle.put(DEFENSE, defenseSkill);
 
 		bundle.put(STRENGTH, STR);
@@ -307,6 +309,7 @@ public class Hero extends Char {
 		Talent.restoreTalentsFromBundle( bundle, this );
 
 		attackSkill = bundle.getInt(ATTACK);
+        bossTestRun = bundle.getBoolean("boss_test_run");
 		defenseSkill = bundle.getInt(DEFENSE);
 
 		STR = bundle.getInt(STRENGTH);
@@ -1281,6 +1284,8 @@ public class Hero extends Char {
 
 	@Override
 	public void damage(int dmg, Object src) {
+        if (com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.immortal()) { HP = Math.max(1, HT); return; }
+
 		if (buff(TimekeepersHourglass.timeStasis.class) != null)
 			return;
 
@@ -1768,6 +1773,8 @@ public class Hero extends Char {
 
 	@Override
 	public void die( Object cause ) {
+        if (com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.immortal()) { HP = Math.max(1, HT); return; }
+
 
 		curAction = null;
 
@@ -1897,6 +1904,8 @@ public class Hero extends Char {
 
 	@Override
 	public boolean isAlive() {
+        if (com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.immortal()) { HP = Math.max(1, HT); return true; }
+
 
 		if (HP <= 0) {
 			if (berserk == null) berserk = buff(Berserk.class);

@@ -51,6 +51,9 @@ public class TenguSprite extends MobSprite {
 		die = new Animation( 8, false );
 		die.frames( frames, 8, 9, 10, 10, 10, 10, 10, 10 );
 		
+		// Fast mode skips the entrance animation. Initialize a single frame before
+		// link() centers the sprite, rather than centering the whole sprite sheet.
+		idle();
 		play( run.clone() );
 	}
 	

@@ -200,7 +200,25 @@ public class TitleScene extends PixelScene {
 
 		Updates.checkForUpdate();
 
-		fadeIn();
+        if (DeviceCompat.isDebug()) {
+            com.shatteredpixel.shatteredpixeldungeon.ui.RedButton test = new com.shatteredpixel.shatteredpixeldungeon.ui.RedButton("Boss 测试 / 不死") {
+                @Override protected void onClick() { add(new com.shatteredpixel.shatteredpixeldungeon.windows.WndBossTest()); }
+            };
+            add(test); test.setRect(4, h-28, 120, 20);
+            if (com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.launchPending) {
+                com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.launchPending = false;
+                if (com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.requestedFast != null) {
+                    com.shatteredpixel.shatteredpixeldungeon.SPDSettings.fastAnimations(com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.requestedFast);
+                    com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.requestedFast = null;
+                }
+                com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.start(
+                    com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.requestedDepth,
+                    com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.automatic,
+                    com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.stronger,
+                    com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.crowded);
+            }
+        }
+        fadeIn();
 	}
 
 	private static class DashboardItem extends Button {
