@@ -26,7 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.utils.Bundle;
-import com.watabou.utils.GameMath;
+import com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath;
 
 public class Healing extends Buff {
 
@@ -46,13 +46,14 @@ public class Healing extends Buff {
 	@Override
 	public boolean act(){
 		
-		target.HP = Math.min(target.HT, target.HP + healingThisTick());
+		int healed = healingThisTick();
+		target.HP = HealthMath.heal(target.HP, target.HT, healed);
 
 		if (target.HP == target.HT && target instanceof Hero){
 			((Hero)target).resting = false;
 		}
 		
-		healingLeft -= healingThisTick();
+		healingLeft -= healed;
 		
 		if (healingLeft <= 0){
 			detach();
@@ -64,19 +65,20 @@ public class Healing extends Buff {
 	}
 	
 	private int healingThisTick(){
-		return (int)GameMath.gate(1,
-				Math.round(healingLeft * percentHealPerTick) + flatHealPerTick,
-				healingLeft);
+		if (healingLeft <= 0) return 0;
+        double amount = Math.floor((double)healingLeft * percentHealPerTick + .5d) + flatHealPerTick;
+        if (Double.isNaN(amount)) amount = 1;
+        return (int)Math.min(healingLeft, Math.max(1d, amount));
 	}
 	
 	public void setHeal(int amount, float percentPerTick, int flatPerTick){
-		healingLeft = amount;
+		healingLeft = Math.max(0, amount);
 		percentHealPerTick = percentPerTick;
 		flatHealPerTick = flatPerTick;
 	}
 	
 	public void increaseHeal( int amount ){
-		healingLeft += amount;
+		healingLeft = HealthMath.reserve(healingLeft, amount);
 	}
 	
 	@Override

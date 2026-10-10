@@ -201,6 +201,7 @@ public class Hero extends Char {
 	public float awareness;
 
 	public int lvl = 1;
+    public boolean bossTestRun;
 	public int exp = 0;
 
 	public int HTBoost = 0;
@@ -225,16 +226,18 @@ public class Hero extends Char {
 	public void updateHT(boolean boostHP) {
 		int curHT = HT;
 
-		HT = 20 + 5 * (lvl - 1) + HTBoost;
+		double baseHT = 20d + 5d * (lvl - 1d) + HTBoost;
 		float multiplier = RingOfMight.HTMultiplier(this);
-		HT = Math.round(multiplier * HT);
+		HT = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.maximum(multiplier * baseHT);
 
 		if (buff(ElixirOfMight.HTBoost.class) != null) {
-			HT += buff(ElixirOfMight.HTBoost.class).boost();
+			HT = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.maximum(
+                    (double)HT + buff(ElixirOfMight.HTBoost.class).boost());
 		}
 
 		if (boostHP) {
-			HP += Math.max(HT - curHT, 0);
+			HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(
+                    HP, HT, Math.max((long)HT - curHT, 0L));
 		}
 		HP = Math.min(HP, HT);
 	}
@@ -279,6 +282,7 @@ public class Hero extends Char {
 		Talent.storeTalentsInBundle( bundle, this );
 
 		bundle.put(ATTACK, attackSkill);
+        bundle.put("boss_test_run", bossTestRun);
 		bundle.put(DEFENSE, defenseSkill);
 
 		bundle.put(STRENGTH, STR);
@@ -307,6 +311,7 @@ public class Hero extends Char {
 		Talent.restoreTalentsFromBundle( bundle, this );
 
 		attackSkill = bundle.getInt(ATTACK);
+        bossTestRun = bundle.getBoolean("boss_test_run");
 		defenseSkill = bundle.getInt(DEFENSE);
 
 		STR = bundle.getInt(STRENGTH);
@@ -1281,6 +1286,8 @@ public class Hero extends Char {
 
 	@Override
 	public void damage(int dmg, Object src) {
+        if (com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.immortal()) { HP = Math.max(1, HT); return; }
+
 		if (buff(TimekeepersHourglass.timeStasis.class) != null)
 			return;
 
@@ -1768,6 +1775,8 @@ public class Hero extends Char {
 
 	@Override
 	public void die( Object cause ) {
+        if (com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.immortal()) { HP = Math.max(1, HT); return; }
+
 
 		curAction = null;
 
@@ -1897,6 +1906,8 @@ public class Hero extends Char {
 
 	@Override
 	public boolean isAlive() {
+        if (com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.immortal()) { HP = Math.max(1, HT); return true; }
+
 
 		if (HP <= 0) {
 			if (berserk == null) berserk = buff(Berserk.class);

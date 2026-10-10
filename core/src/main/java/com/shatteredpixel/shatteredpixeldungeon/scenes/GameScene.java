@@ -671,6 +671,9 @@ public class GameScene extends PixelScene {
 		super.update();
 
 		if (notifyDelay > 0) notifyDelay -= Game.elapsed;
+		if (Actor.recoverStalledMotion(false)) {
+			GLog.w(Messages.get(GameScene.class, "motion_recovered"));
+		}
 		if (!timerPaused && Challenges.MARATHON.enabled() && Dungeon.hero.ready) {
 			timeCounter.visible=true;
 			timer -= Game.elapsed;
@@ -762,6 +765,7 @@ public class GameScene extends PixelScene {
 			g.destroy();
 		}
 		toDestroy.clear();
+        com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.update();
 	}
 
 	private boolean tagAttack    = false;

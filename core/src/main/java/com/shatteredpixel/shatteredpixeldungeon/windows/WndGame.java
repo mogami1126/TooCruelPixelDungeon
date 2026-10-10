@@ -54,7 +54,12 @@ public class WndGame extends Window {
 		
 		super();
 
-		//settings
+        if (com.watabou.utils.DeviceCompat.isDebug()) {
+            addButton(new RedButton("Boss 测试 / 不死") {
+                @Override protected void onClick() { hide(); GameScene.show(new WndBossTest()); }
+            });
+        }
+        //settings
 		RedButton curBtn;
 		addButton( curBtn = new RedButton( Messages.get(this, "settings") ) {
 			@Override
@@ -129,6 +134,15 @@ public class WndGame extends Window {
 		curBtn.icon(Icons.get(Icons.DISPLAY));
 
 		if(!Dungeon.hero.ready) {
+			addButton(curBtn = new RedButton(Messages.get(this, "recover")) {
+				@Override
+				protected void onClick() {
+					boolean recovered = Actor.recoverStalledMotion(true);
+					hide();
+					GameScene.show(new WndMessage(Messages.get(WndGame.class,
+							recovered ? "recover_success" : "recover_unavailable")));
+				}
+			});
 			// Debug
 			addButton(curBtn = new RedButton(Messages.get(this, "debug")) {
 				@Override
