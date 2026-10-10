@@ -137,6 +137,24 @@ public abstract class Actor implements Bundlable {
 	private static HashSet<Char> dispositionedChars = new HashSet<>();
 	private static HashMap<Integer,Char> charsPositioned = new HashMap<>();
 	private static volatile Actor current;
+	private static volatile Char waitingForMotion;
+	private static volatile long motionWaitStarted;
+	private static volatile boolean motionRecoveryAttempted;
+
+	// Render-thread entry point: release one stalled visual wait, never replay an attack.
+	public static boolean recoverStalledMotion(boolean manual) {
+		Char ch = waitingForMotion;
+		if (ch == null || ch.sprite == null) return false;
+		synchronized (ch.sprite) {
+			if (waitingForMotion != ch || !ch.sprite.isMoving || motionRecoveryAttempted
+					|| (!manual && System.nanoTime() - motionWaitStarted < 10_000_000_000L)) {
+				return false;
+			}
+			motionRecoveryAttempted = true;
+			ch.sprite.recoverMotion();
+			return true;
+		}
+	}
 
 	private static SparseArray<Actor> ids = new SparseArray<>();
 	private static int nextID = 1;
@@ -292,7 +310,16 @@ public abstract class Actor implements Bundlable {
 					try {
 						synchronized (((Char)acting).sprite) {
 							if (((Char)acting).sprite.isMoving) {
-								((Char) acting).sprite.wait();
+								waitingForMotion = (Char) acting;
+								motionWaitStarted = System.nanoTime();
+								motionRecoveryAttempted = false;
+								try {
+									while (((Char) acting).sprite.isMoving) {
+										((Char) acting).sprite.wait();
+									}
+								} finally {
+									waitingForMotion = null;
+								}
 							}
 						}
 					} catch (InterruptedException e) {

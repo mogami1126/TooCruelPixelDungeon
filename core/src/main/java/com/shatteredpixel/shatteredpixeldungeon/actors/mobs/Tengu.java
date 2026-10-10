@@ -234,6 +234,7 @@ public class Tengu extends Mob {
 		if (enemy == null) return;
 		
 		int newPos;
+		int oldPos = pos();
 		if (Dungeon.level instanceof PrisonBossLevel){
 			PrisonBossLevel level = (PrisonBossLevel) Dungeon.level;
 			
@@ -254,8 +255,8 @@ public class Tengu extends Mob {
 
 				if (level.heroFOV[pos()]) CellEmitter.get(pos()).burst( Speck.factory( Speck.WOOL ), 6 );
 				
-				sprite.move(pos(), newPos );
 				move( newPos );
+				sprite.move(oldPos, pos());
 				
 				if (level.heroFOV[newPos]) CellEmitter.get( newPos ).burst( Speck.factory( Speck.WOOL ), 6 );
 				Sample.INSTANCE.play( Assets.Sounds.PUFF );
@@ -284,8 +285,8 @@ public class Tengu extends Mob {
 
 				if (level.heroFOV[pos()]) CellEmitter.get(pos()).burst( Speck.factory( Speck.WOOL ), 6 );
 				
-				sprite.move(pos(), newPos );
 				move( newPos );
+				sprite.move(oldPos, pos());
 				
 				if (arenaJumps < 4) arenaJumps++;
 				
@@ -302,8 +303,8 @@ public class Tengu extends Mob {
 			
 			if (level.heroFOV[pos()]) CellEmitter.get(pos()).burst( Speck.factory( Speck.WOOL ), 6 );
 			
-			sprite.move(pos(), newPos );
 			move( newPos );
+			sprite.move(oldPos, pos());
 			
 			if (level.heroFOV[newPos]) CellEmitter.get( newPos ).burst( Speck.factory( Speck.WOOL ), 6 );
 			Sample.INSTANCE.play( Assets.Sounds.PUFF );

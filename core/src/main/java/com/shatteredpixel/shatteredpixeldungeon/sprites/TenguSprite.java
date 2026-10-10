@@ -56,8 +56,23 @@ public class TenguSprite extends MobSprite {
 	
 	@Override
 	public void idle() {
-		isMoving = false;
-		super.idle();
+		synchronized (this) {
+			isMoving = false;
+			super.idle();
+			notifyAll();
+		}
+	}
+
+	@Override
+	public void play(Animation anim) {
+		// An interrupted jump must release the actor waiting for its old animation.
+		if (isMoving && anim != run) {
+			synchronized (this) {
+				isMoving = false;
+				notifyAll();
+			}
+		}
+		super.play(anim);
 	}
 	
 	@Override
@@ -65,10 +80,10 @@ public class TenguSprite extends MobSprite {
 		
 		place( to );
 		
-		play( run );
 		turnTo( from , to );
-
+		// Fast animations complete synchronously inside play(). Set the flag first.
 		isMoving = true;
+		play( run );
 
 		if (Dungeon.level.water[to]) {
 			GameScene.ripple( to );
