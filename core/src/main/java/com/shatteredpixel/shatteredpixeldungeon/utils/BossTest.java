@@ -18,6 +18,7 @@ public final class BossTest {
     public static boolean launchPending;
     public static Boolean requestedFast;
     public static boolean automatic, stronger, crowded;
+    public static boolean highGear;
     private static int slot, steps, jumps, previousPos = -1;
     private static long started, lastStep, lastLog, lastReady;
     private static boolean entered, seenBoss, filled, postFloor;
@@ -67,6 +68,15 @@ public final class BossTest {
         Dungeon.depth = requestedDepth - 1;
         Dungeon.hero.HT = Dungeon.hero.HP = 500;
         Dungeon.hero.bossTestRun = true;
+        if(highGear){
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring haste = new com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste();
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring furor = new com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror();
+            haste.level(100000); furor.level(100000);
+            haste.identify(); furor.identify();
+            Dungeon.hero.belongings.misc=haste;
+            Dungeon.hero.belongings.ring=furor;
+            haste.activate(Dungeon.hero); furor.activate(Dungeon.hero);
+        }
         new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade()
                 .quantity(100000).identify().collect();
         Level level = Dungeon.newLevel();
@@ -78,7 +88,7 @@ public final class BossTest {
         started = lastReady = System.nanoTime();
         lastStep = lastLog = 0;
         log("START depth=" + Dungeon.depth + " auto=" + automatic + " strong=" + stronger
-                + " crowded=" + crowded + " fast=" + SPDSettings.fastAnimations() + " slot=" + slot);
+                + " crowded=" + crowded + " fast=" + SPDSettings.fastAnimations() + " highGear=" + highGear + " slot=" + slot);
     }
 
     private static void enable(Modifiers mods, Challenges challenge) {
@@ -222,7 +232,7 @@ public final class BossTest {
             Dungeon.hero.busy();
             Dungeon.hero.sprite.attack(target.pos(), () -> {
                 Dungeon.hero.attack(target, 1f, Math.max(1, target.HT / 8f), 1_000_000f);
-                Dungeon.hero.spendAndNext(1f);
+                Dungeon.hero.spendAndNext(Dungeon.hero.attackDelay());
             });
         } else Dungeon.hero.spendAndNext(1f);
     }

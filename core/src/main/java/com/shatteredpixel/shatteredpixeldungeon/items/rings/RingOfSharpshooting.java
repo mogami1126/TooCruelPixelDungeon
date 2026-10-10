@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 import java.text.DecimalFormat;
+import com.shatteredpixel.shatteredpixeldungeon.utils.EquipmentGrowth;
 
 public class RingOfSharpshooting extends Ring {
 
@@ -35,7 +36,7 @@ public class RingOfSharpshooting extends Ring {
 
 	public String statsInfo() {
 		if (isIdentified()){
-			return Messages.get(this, "stats", soloBuffedBonus(), new DecimalFormat("#.##").format(100f * (Math.pow(1.2, soloBonus()) - 1f)));
+			return Messages.get(this, "stats", soloBuffedBonus(), EquipmentGrowth.percentIncrease(1.2, soloBonus()));
 		} else {
 			return Messages.get(this, "typical_stats", 1, new DecimalFormat("#.##").format(20f));
 		}
@@ -51,7 +52,7 @@ public class RingOfSharpshooting extends Ring {
 	}
 	
 	public static float durabilityMultiplier( Char target ){
-		return (float)(Math.pow(1.2, getBonus(target, Aim.class)));
+		return (float)(EquipmentGrowth.multiplier(1.2, getBonus(target, Aim.class)));
 	}
 
 	public class Aim extends RingBuff {

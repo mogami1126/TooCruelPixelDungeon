@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 import java.text.DecimalFormat;
+import com.shatteredpixel.shatteredpixeldungeon.utils.EquipmentGrowth;
 
 public class RingOfEnergy extends Ring {
 
@@ -36,8 +37,8 @@ public class RingOfEnergy extends Ring {
 	public String statsInfo() {
 		if (isIdentified()){
 			return Messages.get(this, "stats",
-					new DecimalFormat("#.##").format(100f * (Math.pow(1.20f, soloBuffedBonus()) - 1f)),
-					new DecimalFormat("#.##").format(100f * (Math.pow(1.15f, soloBuffedBonus()) - 1f)));
+					new DecimalFormat("#.##").format(100f * (EquipmentGrowth.charge(1.20f, soloBuffedBonus()) - 1f)),
+					new DecimalFormat("#.##").format(100f * (EquipmentGrowth.charge(1.15f, soloBuffedBonus()) - 1f)));
 		} else {
 			return Messages.get(this, "typical_stats",
 					new DecimalFormat("#.##").format(20f),
@@ -51,11 +52,11 @@ public class RingOfEnergy extends Ring {
 	}
 	
 	public static float wandChargeMultiplier( Char target ){
-		return (float)Math.pow(1.20, getBuffedBonus(target, Energy.class));
+		return (float)EquipmentGrowth.charge(1.20, getBuffedBonus(target, Energy.class));
 	}
 
 	public static float artifactChargeMultiplier( Char target ){
-		return (float)Math.pow(1.15, getBuffedBonus(target, Energy.class));
+		return (float)EquipmentGrowth.charge(1.15, getBuffedBonus(target, Energy.class));
 	}
 	
 	public class Energy extends RingBuff {

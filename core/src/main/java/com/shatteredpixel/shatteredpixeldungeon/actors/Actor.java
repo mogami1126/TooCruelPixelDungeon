@@ -27,6 +27,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.watabou.utils.Bundlable;
+import com.shatteredpixel.shatteredpixeldungeon.utils.TurnTime;
+import com.watabou.utils.DeviceCompat;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.SparseArray;
 
@@ -37,10 +39,12 @@ public abstract class Actor implements Bundlable {
 	
 	public static final float TICK	= 1f;
 
-	private float time;
+	private volatile long time;
+    private int stalledActions;
+    private boolean reportedTimeRepair;
 
 	protected float getTime() {
-		return time;
+		return TurnTime.turns(time);
 	}
 
 	private int id = 0;
@@ -60,42 +64,22 @@ public abstract class Actor implements Bundlable {
 
 	protected abstract boolean act();
 	
-	protected void spend( float time ) {
-		this.time += time;
-		//if time is very close to a whole number, round to a whole number to fix errors
-		float ex = Math.abs(this.time % 1f);
-		if (ex < .001f){
-			this.time = Math.round(this.time);
-		}
-	}
+    protected void spend(float turns) {
+        time=TurnTime.add(time,TurnTime.delta(turns));
+    }
+    public void spendToWhole(){
+        if(time!=TurnTime.INACTIVE){
+            long floor=TurnTime.whole(time);
+            time=time==floor?time:TurnTime.add(floor,TurnTime.UNITS);
+        }
+    }
+    protected void postpone(float turns){
+        if(time!=TurnTime.INACTIVE) time=Math.max(time,TurnTime.add(now,TurnTime.delta(turns)));
+    }
+    public float cooldown(){return TurnTime.turns(time==TurnTime.INACTIVE?time:time-now);}
+    public void clearTime(){time=0;stalledActions=0;}
+    protected void diactivate(){time=TurnTime.INACTIVE;}
 
-	public void spendToWhole(){
-		time = (float)Math.ceil(time);
-	}
-	
-	protected void postpone( float time ) {
-		if (this.time < now + time) {
-			this.time = now + time;
-			//if time is very close to a whole number, round to a whole number to fix errors
-			float ex = Math.abs(this.time % 1f);
-			if (ex < .001f){
-				this.time = Math.round(this.time);
-			}
-		}
-	}
-	
-	public float cooldown() {
-		return time - now;
-	}
-
-	public void clearTime() {
-		time = 0;
-	}
-	
-	protected void diactivate() {
-		time = Float.MAX_VALUE;
-	}
-	
 	protected void onAdd() {}
 	
 	protected void onRemove() {}
@@ -105,13 +89,14 @@ public abstract class Actor implements Bundlable {
 
 	@Override
 	public void storeInBundle( Bundle bundle ) {
-		bundle.put( TIME, time );
+		bundle.put( TIME, TurnTime.turns(time) );
+        bundle.put("time_ticks_v1", time);
 		bundle.put( ID, id );
 	}
 
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
-		time = bundle.getFloat( TIME );
+		time = bundle.contains("time_ticks_v1") ? bundle.getLong("time_ticks_v1") : TurnTime.legacy(bundle.getFloat(TIME));
 		int incomingID = bundle.getInt( ID );
 		if (Actor.findById(incomingID) == null){
 			id = incomingID;
@@ -159,10 +144,10 @@ public abstract class Actor implements Bundlable {
 	private static SparseArray<Actor> ids = new SparseArray<>();
 	private static int nextID = 1;
 
-	private static float now = 0;
+	private static volatile long now = 0;
 	
 	public static float now(){
-		return now;
+		return TurnTime.turns(now);
 	}
 	
 	public static synchronized void clear() {
@@ -182,7 +167,7 @@ public abstract class Actor implements Bundlable {
 		
 		if (all.isEmpty()) return;
 		
-		float min = Float.MAX_VALUE;
+		long min = TurnTime.INACTIVE;
 		for (Actor a : all) {
 			if (a.time < min) {
 				min = a.time;
@@ -191,13 +176,14 @@ public abstract class Actor implements Bundlable {
 
 		//Only pull everything back by whole numbers
 		//So that turns always align with a whole number
-		min = (int)min;
+		if(min==TurnTime.INACTIVE) return;
+        min=TurnTime.whole(min);
 		for (Actor a : all) {
-			a.time -= min;
+			if(a.time!=TurnTime.INACTIVE) a.time -= min;
 		}
 
 		if (Dungeon.hero != null && all.contains( Dungeon.hero )) {
-			Statistics.duration += min;
+			Statistics.duration += TurnTime.turns(min);
 		}
 		now -= min;
 	}
@@ -248,12 +234,14 @@ public abstract class Actor implements Bundlable {
 		return current != null ? current.actPriority : DEFAULT;
 	}
 	
-	public static boolean keepActorThreadAlive = true;
+	public static volatile boolean keepActorThreadAlive = true;
 	
 	public static void process() {
 		
 		boolean doNext;
 		boolean interrupted = false;
+        int sliceActions=0;
+        long sliceStarted=System.nanoTime();
 
 		do {
 			if (dispositionedChars.size() > 0) {
@@ -285,17 +273,20 @@ public abstract class Actor implements Bundlable {
 
 			current = null;
 			if (!interrupted) {
-				float earliest = Float.MAX_VALUE;
+				long earliest = TurnTime.INACTIVE;
 
-				for (Actor actor : all) {
+				synchronized(Actor.class) {
+                for (Actor actor : all) {
+                    if(actor.time==TurnTime.INACTIVE) continue;
 					
 					//some actors will always go before others if time is equal.
 					if (actor.time < earliest ||
-							actor.time == earliest && (current == null || actor.actPriority > current.actPriority)) {
+							actor.time == earliest && (current == null || (actor.actPriority > current.actPriority || (actor.actPriority == current.actPriority && actor.id() < current.id())))) {
 						earliest = actor.time;
 						current = actor;
 					}
 					
+				}
 				}
 			}
 
@@ -333,7 +324,24 @@ public abstract class Actor implements Bundlable {
 					doNext = false;
 					current = null;
 				} else {
-					doNext = acting.act();
+					long before=acting.time;
+                    doNext = acting.act();
+                    // Only continuing, still registered actors can monopolize a timestamp.
+                    // Allow short same-time callback chains; never replay their action.
+                    if(doNext && all.contains(acting) && acting.time!=TurnTime.INACTIVE && acting.time<=before){
+                        if(++acting.stalledActions>=32){
+                            acting.time=TurnTime.add(Math.max(now,acting.time),TurnTime.MIN_ACTION);
+                            acting.stalledActions=0;
+                            if(!acting.reportedTimeRepair){
+                                acting.reportedTimeRepair=true;
+                                DeviceCompat.log("TurnGuard", "non-progress actor="+acting.getClass().getName()+" id="+acting.id());
+                            }
+                        }
+                    }else acting.stalledActions=0;
+                    if(++sliceActions>=128 || System.nanoTime()-sliceStarted>=4_000_000L){
+                        try{Thread.sleep(1);}catch(InterruptedException e){interrupted=true;}
+                        sliceActions=0; sliceStarted=System.nanoTime();
+                    }
 					if (doNext && (Dungeon.hero == null || !Dungeon.hero.isAlive())) {
 						doNext = false;
 						current = null;
@@ -372,10 +380,10 @@ public abstract class Actor implements Bundlable {
 	}
 	
 	public static void addDelayed( Actor actor, float delay ) {
-		add( actor, now + delay );
+		add(actor,TurnTime.add(now,TurnTime.delta(delay)));
 	}
 	
-	private static synchronized void add( Actor actor, float time ) {
+	private static synchronized void add( Actor actor, long time ) {
 		
 		if (all.contains( actor )) {
 			return;
@@ -384,7 +392,7 @@ public abstract class Actor implements Bundlable {
 		ids.put( actor.id(),  actor );
 
 		all.add( actor );
-		actor.time += time;
+		actor.time = TurnTime.add(actor.time,time);
 		actor.onAdd();
 		
 		if (actor instanceof Char) {

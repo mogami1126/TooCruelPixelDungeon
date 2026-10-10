@@ -794,7 +794,11 @@ public abstract class Char extends Actor {
 	protected void spend( float time ) {
 		
 		float timeScale = 1f;
-		super.spend( time / timeScale );
+		float cost=time/timeScale;
+        // Real positive character actions cannot create millions of microturns.
+        // Zero-time callbacks and finite negative refunds are handled separately by Actor.
+        if(cost>0) cost=Math.max(1f/64,Math.min(64,cost));
+        super.spend(cost);
 
 //		if(Math.abs(this.getTime()-Actor.now())>20){
 //			GLog.w("Character time is way off game time. Current time: " + Actor.now() + ", " + this.name() + " time: " + this.getTime());

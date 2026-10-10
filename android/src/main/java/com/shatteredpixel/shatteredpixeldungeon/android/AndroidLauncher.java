@@ -48,6 +48,7 @@ public class AndroidLauncher extends Activity {
                 com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.automatic = getIntent().getBooleanExtra("boss_auto", false);
                 com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.stronger = getIntent().getBooleanExtra("boss_strong", false);
                 com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.crowded = getIntent().getBooleanExtra("boss_crowded", false);
+                com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.highGear = getIntent().getBooleanExtra("boss_highgear", false);
                 com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.launchPending = true;
                 com.shatteredpixel.shatteredpixeldungeon.utils.BossTest.requestedFast = getIntent().getBooleanExtra("boss_fast", true);
             }

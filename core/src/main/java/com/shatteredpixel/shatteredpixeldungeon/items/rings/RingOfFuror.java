@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 import java.text.DecimalFormat;
+import com.shatteredpixel.shatteredpixeldungeon.utils.EquipmentGrowth;
 
 public class RingOfFuror extends Ring {
 
@@ -35,7 +36,7 @@ public class RingOfFuror extends Ring {
 
 	public String statsInfo() {
 		if (isIdentified()){
-			return Messages.get(this, "stats", new DecimalFormat("#.##").format(100f * (Math.pow(1.105f, soloBuffedBonus()) - 1f)));
+			return Messages.get(this, "stats", new DecimalFormat("#.##").format(100f * (EquipmentGrowth.speed(1.105f, soloBuffedBonus()) - 1f)));
 		} else {
 			return Messages.get(this, "typical_stats", new DecimalFormat("#.##").format(10.5f));
 		}
@@ -47,7 +48,7 @@ public class RingOfFuror extends Ring {
 	}
 	
 	public static float attackSpeedMultiplier(Char target ){
-		return (float)Math.pow(1.105, getBuffedBonus(target, Furor.class));
+		return (float)EquipmentGrowth.speed(1.105, getBuffedBonus(target, Furor.class));
 	}
 
 	public class Furor extends RingBuff {
