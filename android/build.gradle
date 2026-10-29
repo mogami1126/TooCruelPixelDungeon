@@ -27,7 +27,7 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix ".indev"
-            versionNameSuffix '-local'
+            versionNameSuffix '-local-fix2'
             dependencies {
                 debugImplementation project(':services:updates:debugUpdates')
                 debugImplementation project(':services:news:debugNews')
@@ -51,6 +51,10 @@ android {
     }
 
     sourceSets {
+        // Local play uses the original mimic icon from main, not the debug chest.
+        debug {
+            res.srcDirs = []
+        }
         main {
             jniLibs.srcDirs = ['libs']
         }

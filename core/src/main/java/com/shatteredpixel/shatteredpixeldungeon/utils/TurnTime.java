@@ -23,7 +23,17 @@ public final class TurnTime {
         return current+delta;
     }
     public static float turns(long units){return units==INACTIVE?Float.MAX_VALUE:(float)((double)units/UNITS);}
-    public static long legacy(float turns){return turns==Float.MAX_VALUE?INACTIVE:delta(turns);}
+    public static long legacy(float turns){
+        if(turns==Float.MAX_VALUE || turns==Float.POSITIVE_INFINITY) return INACTIVE;
+        if(!Float.isFinite(turns)) return 0;
+        // Saved absolute timestamps are not individual delays: do not clip them
+        // to MAX_DELAY, which would collapse distinct events in long-running saves.
+        double units=(double)turns*UNITS;
+        if(units>=Long.MAX_VALUE-1d) return Long.MAX_VALUE-1;
+        if(units<=Long.MIN_VALUE) return Long.MIN_VALUE;
+        long rounded=Math.round(units);
+        return rounded==0 && turns!=0 ? (turns>0?1:-1) : rounded;
+    }
     public static long whole(long units){return Math.floorDiv(units,UNITS)*UNITS;}
     private TurnTime(){}
 }

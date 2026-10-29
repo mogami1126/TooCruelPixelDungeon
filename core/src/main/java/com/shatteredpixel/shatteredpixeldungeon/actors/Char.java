@@ -615,7 +615,7 @@ public abstract class Char extends Actor {
 		
 		cachedShield = 0;
 		for (ShieldBuff s : buffs(ShieldBuff.class)){
-			cachedShield += s.shielding();
+			cachedShield = (int)Math.min(Integer.MAX_VALUE, (long)cachedShield + Math.max(0, s.shielding()));
 		}
 		needsShieldUpdate = false;
 		return cachedShield;

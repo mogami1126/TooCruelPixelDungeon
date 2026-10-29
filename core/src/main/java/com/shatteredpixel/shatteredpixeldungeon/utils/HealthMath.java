@@ -8,7 +8,9 @@ public final class HealthMath {
     }
 
     public static int heal(int hp, int ht, long amount) {
-        return (int)Math.min(Math.max(0, ht), (long)hp + Math.max(0L, amount));
+        long maximum=Math.max(0, ht);
+        // Limit the increment before adding, including callers passing Long.MAX_VALUE.
+        return (int)((long)hp + Math.min(maximum-(long)hp, Math.max(0L, amount)));
     }
 
     public static int reserve(int current, int extra) {

@@ -213,7 +213,7 @@ public class CursedWand {
 						toHeal = target;
 						toDamage = user;
 					}
-					toHeal.HP = Math.min(toHeal.HT, toHeal.HP + damage);
+					toHeal.HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(toHeal.HP, toHeal.HT, damage);
 					toHeal.sprite.emitter().burst(Speck.factory(Speck.HEALING), 3);
 					toDamage.damage(damage, origin == null ? toHeal : origin);
 					toDamage.sprite.emitter().start(ShadowParticle.UP, 0.05f, 10);

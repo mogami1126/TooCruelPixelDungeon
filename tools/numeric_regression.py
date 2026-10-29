@@ -53,6 +53,8 @@ public class NumericProbe {
   require(Math.abs(EquipmentGrowth.speed(1.2,5)-Math.pow(1.2,5))<1e-6,"ordinary speed unchanged");
   require(TurnTime.delta(1e-12f)==1,"small positive preserved");require(TurnTime.delta(-1e-12f)==-1,"refund preserved");
   require(TurnTime.delta(0)==0,"same time preserved");require(TurnTime.delta(Float.NaN)>0,"NaN repair");
+  require(TurnTime.legacy(2_000_000f)==2_000_000L*TurnTime.UNITS,"legacy absolute timestamps must not be clipped to delta limit");
+  require(TurnTime.legacy(3_000_000f)>TurnTime.legacy(2_000_000f),"legacy long games retain event ordering");
   TestActor a=new TestActor(0,0);a.move(.00001f);Bundle save=new Bundle();a.storeInBundle(save);
   TestActor loaded=new TestActor(0,0);loaded.restoreFromBundle(save);require(a.getTime()==loaded.getTime(),"new save exact");
   Bundle old=new Bundle();old.put("time",.5f);loaded.restoreFromBundle(old);require(loaded.getTime()==.5f,"legacy save");

@@ -53,7 +53,7 @@ public class RotLasher extends Mob {
 	@Override
 	protected boolean act() {
 		if (enemy == null || !Dungeon.level.adjacent(pos(), enemy.pos())) {
-			HP = Math.min(HT, HP + 3);
+			HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(HP, HT, 3);
 		}
 		return super.act();
 	}

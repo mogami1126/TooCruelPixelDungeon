@@ -58,7 +58,7 @@ public abstract class ShieldBuff extends Buff {
 	}
 
 	public void incShield( int amt ){
-		shielding += amt;
+		shielding = (int)Math.max(0L, Math.min(Integer.MAX_VALUE, (long)shielding + amt));
 		if (target != null) target.needsShieldUpdate = true;
 	}
 	

@@ -42,7 +42,7 @@ public class WellFed extends Buff {
 			detach();
 			return true;
 		} else if (left % 18 == 0){
-			target.HP = Math.min(target.HT, target.HP + 1);
+			target.HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(target.HP, target.HT, 1);
 		}
 		
 		spend(TICK);

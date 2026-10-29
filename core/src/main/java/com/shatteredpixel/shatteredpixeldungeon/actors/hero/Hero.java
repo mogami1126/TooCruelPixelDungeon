@@ -1323,14 +1323,14 @@ public class Hero extends Char {
 			}
 		}
 
-		int preHP = HP + shielding();
+		long preHP = (long)HP + shielding();
 		int preRawHP = HP;
 		super.damage(dmg, src);
-		int postHP = HP + shielding();
-		int effectiveDamage = preHP - postHP;
+		long postHP = (long)HP + shielding();
+		long effectiveDamage = preHP - postHP;
 
 		if (Challenges.PLAGUE.enabled() && preRawHP - HP > 0 && isAlive()) {
-			Buff.affect(this, Intoxication.class).processHit(preHP - HP, src);
+			Buff.affect(this, Intoxication.class).processHit((int)Math.min(Integer.MAX_VALUE, preHP - HP), src);
 		}
 		if (effectiveDamage <= 0) return;
 

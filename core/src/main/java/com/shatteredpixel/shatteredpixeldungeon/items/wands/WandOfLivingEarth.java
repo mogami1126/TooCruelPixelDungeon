@@ -308,7 +308,7 @@ public class WandOfLivingEarth extends DamageWand {
 				this.wandLevel = wandLevel;
 				HT = 16 + 8 * wandLevel;
 			}
-			HP = Math.min(HT, HP + healthToAdd);
+			HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(HP, HT, healthToAdd);
 			//half of hero's evasion
 			defenseSkill = (hero.lvl + 4)/2;
 		}
