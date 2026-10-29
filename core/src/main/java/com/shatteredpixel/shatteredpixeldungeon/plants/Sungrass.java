@@ -88,10 +88,10 @@ public class Sungrass extends Plant {
 			}
 			
 			//for the hero, full heal takes ~50/93/111/120 turns at levels 1/10/20/30
-			partialHeal += (40 + target.HT)/150f;
+			partialHeal += (40d + target.HT)/150d;
 			
 			if (partialHeal > 1){
-				target.HP += (int)partialHeal;
+				target.HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(target.HP, target.HT, (int)partialHeal);
 				level -= (int)partialHeal;
 				partialHeal -= (int)partialHeal;
 				target.sprite.emitter().burst(Speck.factory(Speck.HEALING), 1);

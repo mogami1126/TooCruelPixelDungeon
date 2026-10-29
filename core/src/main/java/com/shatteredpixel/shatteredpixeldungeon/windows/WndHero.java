@@ -70,6 +70,7 @@ public class WndHero extends WndTabbed {
 		
 		stats = new StatsTab();
 		add(stats);
+		resize(WIDTH, Math.max(HEIGHT, (int)Math.ceil(stats.height())));
 		
 		talents = new TalentsTab();
 		add(talents);
@@ -195,13 +196,19 @@ public class WndHero extends WndTabbed {
 			RenderedTextBlock txt = PixelScene.renderTextBlock(label, 8);
 			txt.setPos(0, pos);
 			add(txt);
+			float labelBottom = txt.bottom();
 			
 			txt = PixelScene.renderTextBlock(value, 8);
-			txt.setPos(WIDTH * 0.6f, pos);
+			if (txt.width() > WIDTH * 0.4f) {
+				if (txt.width() > WIDTH) txt.zoom(WIDTH / txt.width() / PixelScene.defaultZoom);
+				txt.setPos(0, labelBottom + 2);
+			} else {
+				txt.setPos(WIDTH * 0.6f, pos);
+			}
 			PixelScene.align(txt);
 			add(txt);
 			
-			pos += GAP + txt.height();
+			pos = Math.max(labelBottom, txt.bottom()) + GAP;
 		}
 		
 		private void statSlot(String label, int value) {

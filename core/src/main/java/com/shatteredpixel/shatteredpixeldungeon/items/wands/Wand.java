@@ -684,17 +684,15 @@ public abstract class Wand extends Item {
 			return Wand.this;
 		}
 
-		public void gainCharge(float charge){
-			if (curCharges < maxCharges) {
-				partialCharge += charge;
-				while (partialCharge >= 1f) {
-					curCharges++;
-					partialCharge--;
-				}
-				curCharges = Math.min(curCharges, maxCharges);
-				updateQuickslot();
-			}
-		}
+        public void gainCharge(float charge){
+            if(curCharges>=maxCharges || Float.isNaN(charge) || charge<=0) return;
+            double total=(double)partialCharge+charge;
+            int missing=maxCharges-curCharges;
+            int gained=(int)Math.min(missing,Math.floor(total));
+            curCharges+=Math.max(0,gained);
+            partialCharge=curCharges>=maxCharges?0:(float)(total-gained);
+            updateQuickslot();
+        }
 
 		private void setScaleFactor(float value){
 			this.scalingFactor = value;

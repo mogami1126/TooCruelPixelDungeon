@@ -256,7 +256,7 @@ public class WandOfWarding extends Wand {
 					break;
 			}
 
-			HP = Math.min(HT, HP+heal);
+			HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(HP, HT, heal);
 			if (sprite != null) sprite.showStatus(CharSprite.POSITIVE, Integer.toString(heal));
 
 		}

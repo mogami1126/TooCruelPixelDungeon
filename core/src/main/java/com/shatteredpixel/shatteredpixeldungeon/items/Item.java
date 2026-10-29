@@ -380,7 +380,7 @@ public class Item implements Bundlable {
 	
 	public Item upgrade() {
 		
-		this.level++;
+		if(this.level<Integer.MAX_VALUE) this.level++;
 
 		limitLevel();
 
@@ -404,7 +404,7 @@ public class Item implements Bundlable {
 	
 	public Item degrade() {
 		
-		this.level--;
+		if(this.level>Integer.MIN_VALUE) this.level--;
 		
 		return this;
 	}
@@ -571,7 +571,12 @@ public class Item implements Bundlable {
 		cursedKnown	= bundle.getBoolean( CURSED_KNOWN );
 		
 		int level = bundle.getInt( LEVEL );
-		if (level > 0) {
+		if (this instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring) {
+            // Ring state is stored explicitly. Replaying 100000 upgrades on load is
+            // unnecessary and can also update the partially restored hero's health.
+            this.level = level;
+            limitLevel();
+        } else if (level > 0) {
 			upgrade( level );
 		} else if (level < 0) {
 			degrade( -level );

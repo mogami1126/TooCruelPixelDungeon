@@ -161,7 +161,7 @@ public class Necromancer extends Mob {
 				sprite.parent.add(new Beam.HealthRay(sprite.center(), mySkeleton.sprite.center()));
 			}
 			
-			mySkeleton.HP = Math.min(mySkeleton.HP + 5, mySkeleton.HT);
+			mySkeleton.HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(mySkeleton.HP, mySkeleton.HT, 5);
 			if (mySkeleton.sprite.visible) mySkeleton.sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
 			
 		//otherwise give it adrenaline

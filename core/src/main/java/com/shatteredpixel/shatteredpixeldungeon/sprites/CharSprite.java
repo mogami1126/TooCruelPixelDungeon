@@ -284,7 +284,20 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		turnTo(ch.pos(), cell );
 		play( attack );
 	}
-	
+
+	// Render-thread recovery of visual motion only; never repeat an attack callback.
+	public synchronized void recoverMotion() {
+		if (motion != null) {
+			motion.stop(false);
+			motion.killAndErase();
+			motion = null;
+		}
+		if (ch != null) place(ch.pos());
+		isMoving = false;
+		if (curAnim == run) idle();
+		notifyAll();
+	}
+
 	public void attack( int cell, Callback callback ) {
 		animCallback = callback;
 		turnTo(ch.pos(), cell );

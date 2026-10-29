@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ShieldBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Doom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LifeLink;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
@@ -94,6 +95,7 @@ public class DwarfKing extends Mob {
 	}
 
 	private int phase = 1;
+	private boolean deathResolved;
 	private int summonsMade = 0;
 
 	private float summonCooldown = 0;
@@ -137,6 +139,14 @@ public class DwarfKing extends Mob {
 
 	@Override
 	protected boolean act() {
+		if (deathResolved) return true;
+		// Repair old saves whose phase transition left a zero-HP king registered.
+		if (phase == 2 && shielding() == 0) enterFinalPhase();
+		if (phase == 3 && !super.isAlive()) {
+			die(null);
+			return true;
+		}
+		if (deathResolved) return true;
 		if (phase == 1) {
 
 			if (summonCooldown <= 0 && summonSubject(Challenges.STRONGER_BOSSES.enabled() ? 2 : 3)){
@@ -194,7 +204,7 @@ public class DwarfKing extends Mob {
 					spend(3 * TICK);
 					summonsMade += 2;
 					return true;
-				} else if (shielding() <= 300 && summonsMade < 12){
+				} else if (shielding() <= phaseShieldThreshold(6) && summonsMade < 12){
 					if (summonsMade == 6) {
 						sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
 						Sample.INSTANCE.play(Assets.Sounds.CHALLENGE);
@@ -210,7 +220,7 @@ public class DwarfKing extends Mob {
 					summonsMade += 3;
 					spend(3*TICK);
 					return true;
-				} else if (shielding() <= 150 && summonsMade < 18) {
+				} else if (shielding() <= phaseShieldThreshold(12) && summonsMade < 18) {
 					if (summonsMade == 12) {
 						sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
 						Sample.INSTANCE.play(Assets.Sounds.CHALLENGE);
@@ -247,7 +257,7 @@ public class DwarfKing extends Mob {
 					spend(3 * TICK);
 					summonsMade++;
 					return true;
-				} else if (shielding() <= 200 && summonsMade < 8) {
+				} else if (shielding() <= phaseShieldThreshold(4) && summonsMade < 8) {
 					if (summonsMade == 4) {
 						sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
 						Sample.INSTANCE.play(Assets.Sounds.CHALLENGE);
@@ -261,7 +271,7 @@ public class DwarfKing extends Mob {
 					summonsMade++;
 					spend(TICK);
 					return true;
-				} else if (shielding() <= 100 && summonsMade < 12) {
+				} else if (shielding() <= phaseShieldThreshold(8) && summonsMade < 12) {
 					sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
 					Sample.INSTANCE.play(Assets.Sounds.CHALLENGE);
 					yell(Messages.get(this, "wave_3"));
@@ -436,6 +446,17 @@ public class DwarfKing extends Mob {
 
 	@Override
 	public void damage(int dmg, Object src) {
+		if (deathResolved) return;
+		// KingDamager advances the shield phase, not the protected health pool.
+		if (phase == 2 && src instanceof KingDamager) {
+			int remaining = Math.max(dmg, 0);
+			for (ShieldBuff shield : buffs(ShieldBuff.class)) {
+				remaining = shield.absorbDamage(remaining);
+				if (remaining == 0) break;
+			}
+			if (shielding() == 0) enterFinalPhase();
+			return;
+		}
 		if (isInvulnerable(src.getClass())){
 			super.damage(dmg, src);
 			return;
@@ -477,15 +498,28 @@ public class DwarfKing extends Mob {
 				}
 			}
 		} else if (phase == 2 && shielding() == 0) {
-			properties.remove(Property.IMMOVABLE);
-			phase = 3;
-			summonsMade = 1; //monk/warlock on 3rd summon
-			sprite.centerEmitter().start( Speck.factory( Speck.SCREAM ), 0.4f, 2 );
-			Sample.INSTANCE.play( Assets.Sounds.CHALLENGE );
-			yell(  Messages.get(this, "enraged", Dungeon.hero.name()) );
+			enterFinalPhase();
 		} else if (phase == 3 && preHP > 20 && HP < 20){
 			yell( Messages.get(this, "losing") );
 		}
+	}
+
+	private int phaseShieldThreshold(int defeatedSubjects) {
+		int total = Challenges.STRONGER_BOSSES.enabled() ? 18 : 12;
+		return HT - (HT / total) * defeatedSubjects;
+	}
+
+	private void enterFinalPhase() {
+		properties.remove(Property.IMMOVABLE);
+		phase = 3;
+		if (!super.isAlive()) {
+			die(null);
+			return;
+		}
+		summonsMade = 1;
+		sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
+		Sample.INSTANCE.play(Assets.Sounds.CHALLENGE);
+		yell(Messages.get(this, "enraged", Dungeon.hero.name()));
 	}
 
 	@Override
@@ -495,6 +529,8 @@ public class DwarfKing extends Mob {
 
 	@Override
 	public void die(Object cause) {
+		if (deathResolved) return;
+		deathResolved = true;
 
 		GameScene.bossSlain();
 

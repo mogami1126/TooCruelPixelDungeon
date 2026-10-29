@@ -57,7 +57,7 @@ public class SavingSlumber extends Buff {
         partialHeal += target.HT / DURATION;
         if (partialHeal > 1) {
             int heal = (int) Math.floor(partialHeal);
-            target.HP = Math.min(target.HP + heal, target.HT);
+            target.HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(target.HP, target.HT, heal);
             if (Dungeon.level.heroFOV[target.pos()])
                 target.sprite.showStatus(CharSprite.POSITIVE, Integer.toString(heal));
             partialHeal -= heal;

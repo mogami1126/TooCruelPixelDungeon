@@ -100,7 +100,7 @@ public class Yog extends Mob {
 	@Override
 	protected boolean act() {
 		//heals 1 health per turn
-		HP = Math.min( HT, HP+1 );
+		HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(HP, HT, 1);
 
 		return super.act();
 	}

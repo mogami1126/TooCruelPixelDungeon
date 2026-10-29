@@ -47,6 +47,7 @@ import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
 
 import java.text.DecimalFormat;
+import com.shatteredpixel.shatteredpixeldungeon.utils.EquipmentGrowth;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -61,7 +62,7 @@ public class RingOfWealth extends Ring {
 	
 	public String statsInfo() {
 		if (isIdentified()){
-			return Messages.get(this, "stats", new DecimalFormat("#.##").format(100f * (Math.pow(1.20f, soloBuffedBonus()) - 1f)));
+			return Messages.get(this, "stats", EquipmentGrowth.percentIncrease(1.20f, soloBuffedBonus()));
 		} else {
 			return Messages.get(this, "typical_stats", new DecimalFormat("#.##").format(20f));
 		}
@@ -90,7 +91,7 @@ public class RingOfWealth extends Ring {
 	}
 	
 	public static float dropChanceMultiplier( Char target ){
-		return (float)Math.pow(1.20, getBuffedBonus(target, Wealth.class));
+		return (float)EquipmentGrowth.multiplier(1.20, getBuffedBonus(target, Wealth.class));
 	}
 	
 	public static ArrayList<Item> tryForBonusDrop(Char target, int tries ){

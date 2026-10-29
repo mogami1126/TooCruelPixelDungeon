@@ -292,40 +292,40 @@ public class Ring extends KindofMisc {
 	public int buffedLvl() {
 		int lvl = super.buffedLvl();
 		if (Dungeon.hero.buff(EnhancedRings.class) != null){
-			lvl++;
+			if(lvl<Integer.MAX_VALUE) lvl++;
 		}
 		return lvl;
 	}
 
 	public static int getBonus(Char target, Class<?extends RingBuff> type){
-		int bonus = 0;
+		long bonus = 0;
 		for (RingBuff buff : target.buffs(type)) {
 			bonus += buff.level();
 		}
-		return bonus;
+		return (int)Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, bonus));
 	}
 
 	public static int getBuffedBonus(Char target, Class<?extends RingBuff> type){
-		int bonus = 0;
+		long bonus = 0;
 		for (RingBuff buff : target.buffs(type)) {
 			bonus += buff.buffedLvl();
 		}
-		return bonus;
+		return (int)Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, bonus));
 	}
 
 	public int soloBonus(){
 		if (cursed){
-			return Math.min( 0, Ring.this.level()-2 );
+			return Math.min( 0, (int)Math.max(Integer.MIN_VALUE, (long)Ring.this.level()-2) );
 		} else {
-			return Ring.this.level()+1;
+			return (int)Math.min(Integer.MAX_VALUE, (long)Ring.this.level()+1);
 		}
 	}
 
 	public int soloBuffedBonus(){
 		if (cursed){
-			return Math.min( 0, Ring.this.buffedLvl()-2 );
+			return Math.min( 0, (int)Math.max(Integer.MIN_VALUE, (long)Ring.this.buffedLvl()-2) );
 		} else {
-			return Ring.this.buffedLvl()+1;
+			return (int)Math.min(Integer.MAX_VALUE, (long)Ring.this.buffedLvl()+1);
 		}
 	}
 

@@ -225,16 +225,18 @@ public class Hero extends Char {
 	public void updateHT(boolean boostHP) {
 		int curHT = HT;
 
-		HT = 20 + 5 * (lvl - 1) + HTBoost;
+		double baseHT = 20d + 5d * (lvl - 1d) + HTBoost;
 		float multiplier = RingOfMight.HTMultiplier(this);
-		HT = Math.round(multiplier * HT);
+		HT = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.maximum(multiplier * baseHT);
 
 		if (buff(ElixirOfMight.HTBoost.class) != null) {
-			HT += buff(ElixirOfMight.HTBoost.class).boost();
+			HT = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.maximum(
+                    (double)HT + buff(ElixirOfMight.HTBoost.class).boost());
 		}
 
 		if (boostHP) {
-			HP += Math.max(HT - curHT, 0);
+			HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(
+                    HP, HT, Math.max((long)HT - curHT, 0L));
 		}
 		HP = Math.min(HP, HT);
 	}
@@ -1281,6 +1283,7 @@ public class Hero extends Char {
 
 	@Override
 	public void damage(int dmg, Object src) {
+
 		if (buff(TimekeepersHourglass.timeStasis.class) != null)
 			return;
 
@@ -1320,14 +1323,14 @@ public class Hero extends Char {
 			}
 		}
 
-		int preHP = HP + shielding();
+		long preHP = (long)HP + shielding();
 		int preRawHP = HP;
 		super.damage(dmg, src);
-		int postHP = HP + shielding();
-		int effectiveDamage = preHP - postHP;
+		long postHP = (long)HP + shielding();
+		long effectiveDamage = preHP - postHP;
 
 		if (Challenges.PLAGUE.enabled() && preRawHP - HP > 0 && isAlive()) {
-			Buff.affect(this, Intoxication.class).processHit(preHP - HP, src);
+			Buff.affect(this, Intoxication.class).processHit((int)Math.min(Integer.MAX_VALUE, preHP - HP), src);
 		}
 		if (effectiveDamage <= 0) return;
 
@@ -1769,6 +1772,7 @@ public class Hero extends Char {
 	@Override
 	public void die( Object cause ) {
 
+
 		curAction = null;
 
 		Ankh ankh = null;
@@ -1897,6 +1901,7 @@ public class Hero extends Char {
 
 	@Override
 	public boolean isAlive() {
+
 
 		if (HP <= 0) {
 			if (berserk == null) berserk = buff(Berserk.class);

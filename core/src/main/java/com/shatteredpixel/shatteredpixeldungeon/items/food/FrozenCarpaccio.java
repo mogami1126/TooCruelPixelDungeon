@@ -67,7 +67,7 @@ public class FrozenCarpaccio extends Food {
 			case 3:
 				GLog.i( Messages.get(FrozenCarpaccio.class, "better") );
 				if (hero.HP < hero.HT) {
-					hero.HP = Math.min( hero.HP + hero.HT / 4, hero.HT );
+					hero.HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(hero.HP, hero.HT, hero.HT / 4);
 					hero.sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
 				}
 				break;

@@ -103,7 +103,7 @@ public class Pasty extends Food {
 				break; //do nothing extra
 			case HWEEN:
 				//heals for 10% max hp
-				hero.HP = Math.min(hero.HP + hero.HT/10, hero.HT);
+				hero.HP = com.shatteredpixel.shatteredpixeldungeon.utils.HealthMath.heal(hero.HP, hero.HT, hero.HT/10);
 				hero.sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
 				break;
 			case XMAS:

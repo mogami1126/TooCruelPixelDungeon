@@ -29,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 import java.text.DecimalFormat;
+import com.shatteredpixel.shatteredpixeldungeon.utils.EquipmentGrowth;
 
 public class RingOfMight extends Ring {
 
@@ -77,7 +78,7 @@ public class RingOfMight extends Ring {
 	
 	public String statsInfo() {
 		if (isIdentified()){
-			return Messages.get(this, "stats", soloBonus(), new DecimalFormat("#.##").format(100f * (Math.pow(1.035, soloBuffedBonus()) - 1f)));
+			return Messages.get(this, "stats", soloBonus(), EquipmentGrowth.percentIncrease(1.035, soloBuffedBonus()));
 		} else {
 			return Messages.get(this, "typical_stats", 1, new DecimalFormat("#.##").format(3.5f));
 		}
@@ -93,7 +94,7 @@ public class RingOfMight extends Ring {
 	}
 	
 	public static float HTMultiplier( Char target ){
-		return (float)Math.pow(1.035, getBuffedBonus(target, Might.class));
+		return (float)EquipmentGrowth.multiplier(1.035, getBuffedBonus(target, Might.class));
 	}
 
 	public class Might extends RingBuff {
